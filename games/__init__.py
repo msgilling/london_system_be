@@ -1,17 +1,21 @@
 from flask import Flask, jsonify, request, render_template
-from .database.games import games
+from .database.users import users
 from werkzeug.exceptions import NotFound, InternalServerError, MethodNotAllowed, BadRequest
 from .routes.game_routes import game_routes
+from .routes.user_routes import user_routes
 from flask_login import LoginManager
-
-login_manager = LoginManager()
 
 app = Flask( __name__ )
 
+app.register_blueprint(game_routes)
+app.register_blueprint(user_routes)
+
+login_manager = LoginManager()
 login_manager.init_app(app)
 
-app.register_blueprint(game_routes)
-
+@login_manager.user_loader
+def load_user(id):
+    return next(user for user in users if user["id"] == id)
 
 @app.route("/")
 def welcome():
@@ -33,8 +37,6 @@ def handle_500(err):
 @app.errorhandler(MethodNotAllowed)
 def handle_405(err):
     return jsonify({"message": f"Oops {err}"}), 405
-
-
 
 if __name__ == "__main__":
     app.run(debug=True)
