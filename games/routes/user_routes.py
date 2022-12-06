@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
-from ..database.users import users
+from ..models.users import User
+from ..database.db import db
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.exceptions import BadRequest
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -9,47 +10,52 @@ user_routes = Blueprint("user_routes", __name__)
 @user_routes.route("/login", methods=["GET", "POST"])
 def login_handler():
     if request.method == "GET":
-        return jsonify(users), 200
+        users = User.query.all()
+        outputs = map(lambda g: {"username": g.username, "name": g.name,"email": g.email,"password": g.password}, users)
+        return jsonify(list(outputs)), 200
     elif request.method == "POST":
         new_user_email = request.json.get("email")
         new_user_password = request.json.get("password")
-        found_user = next(user for user in users if user["email"] == new_user_email)
-        if found_user:
-            if check_password_hash(found_user["password"], new_user_password):
-                login_user(found_user, remember=True)
+        foundUserEmail = User.query.filter_by(email=str(new_user_email)).first() 
+        if foundUserEmail:
+            if check_password_hash(foundUserEmail.password, new_user_password):
+                login_user(foundUserEmail, remember=True)
                 return "Logged in!", 200
             else:
-                return "Password is incorrect", 400
+                return BadRequest(f"Failed login! Password incorrect")
         else:
-            return "email is incorrect", 400
+            return BadRequest(f"Failed login! email incorrect")
 
 @user_routes.route("/sign-up", methods=["GET", "POST"])
 def sign_up_handler():
     if request.method == "GET":
-        return jsonify(users), 200
+        users = User.query.all()
+        outputs = map(lambda g: {"username": g.username, "name": g.name,"email": g.email,"password": g.password}, users)
+        return jsonify(list(outputs)), 200
     elif request.method == "POST":
         new_user = request.json
         try :
-            foundUserEmail = next(y for y in users if y["email"] == new_user["email"])
+            foundUserEmail = User.query.filter_by(email=str(new_user["email"])).first() 
         except:
             foundUserEmail = False
         try: 
-            foundUserUsername = next(x for x in users if x["username"] == new_user["username"])
+            foundUserUsername = User.query.filter_by(username=str(new_user["username"])).first()
         except:
             foundUserUsername = False
         if foundUserEmail:
+            print(foundUserEmail)
             return 'user already exists', 400
         if foundUserUsername:
             return 'user already exists', 400
         elif new_user["password1"] != new_user["password2"]:
             return "passwords don't match", 400
         else:
-            last_id = users[-1]["id"]
-            new_user["id"] = last_id + 1
             new_user["password"] = generate_password_hash(new_user["password1"], method='sha256')
-            users.append(new_user)
-            login_user(new_user, remember=True)
-            return new_user, 201
+            new_user_created = User(name=new_user["name"], username=new_user["username"], email=new_user["email"], password=new_user["password"])
+            db.session.add(new_user_created)
+            db.session.commit()
+            login_user(new_user_created, remember=True)
+            return jsonify(new_user), 201
 
 @user_routes.route("/logout")
 @login_required
