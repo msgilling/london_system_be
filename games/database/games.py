@@ -9,7 +9,7 @@ games = [
         "year": 1933,
         "video_link": "https://youtu.be/Gzn95EZLB3Y",
         "image": "https://s3-us-west-1.amazonaws.com/5cc.images/games/uploaded/1609460299342",
-        "genre": ["Business simulation game", "Board game", "Roll and move"] 
+        "genre": "Business simulation game"
     },
     {
         "id": 2,
@@ -21,7 +21,7 @@ games = [
         "year": 1475,
         "video_link": "https://youtu.be/fKxG8KjH1Qg",
         "image": "https://s3-us-west-1.amazonaws.com/5cc.images/games/uploaded/1594689503033",
-        "genre": ["Board game", "Abstract strategy game"] 
+        "genre": "Abstract strategy game" 
     },
     {
         "id": 3,
@@ -33,7 +33,7 @@ games = [
         "year": 2000,
         "video_link": "https://youtu.be/-74FYj21JVg",
         "image": "https://image.smythstoys.com/original/desktop/146900.jpg",
-        "genre": ["Tile-based game", "Board game", "Eurogame"] 
+        "genre": "Tile-based game"
     },
     {
         "id": 4,
@@ -45,6 +45,6 @@ games = [
         "year": 1948,
         "video_link": "https://youtu.be/K1KgvZwwJqo",
         "image": "https://s3-us-west-1.amazonaws.com/5cc.images/games/uploaded/1599599554926",
-        "genre": ["Word game", "Board game"] 
+        "genre": "Word game"
     }
 ]
