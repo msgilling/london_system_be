@@ -16,6 +16,8 @@ def login_handler():
     elif request.method == "POST":
         new_user_email = request.json.get("email")
         new_user_password = request.json.get("password")
+        print(new_user_email)
+        print(new_user_password)
         foundUserEmail = User.query.filter_by(email=str(new_user_email)).first() 
         if foundUserEmail:
             if check_password_hash(foundUserEmail.password, new_user_password):
