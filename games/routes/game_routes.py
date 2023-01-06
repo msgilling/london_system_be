@@ -20,16 +20,22 @@ def games_handler():
         except:
             return BadRequest("Sorry, failed to add game!")
 
-@game_routes.route("/games/<int:id>", methods=["GET", "DELETE"])
-def game_handler(id):
+@game_routes.route("/games/<string:name>", methods=["GET", "DELETE"])
+def game_handler(name):
     if request.method == "GET":
         try:
-            return next(game for game in games if game["id"] == id)
+            foundGame = Game.query.filter_by(name=name).first()
+            sendableGame = {"name": foundGame.name, "min_players": foundGame.min_players,"max_players": foundGame.max_players,
+            "min_age": foundGame.min_age,"year": foundGame.year,"description": foundGame.description,"video_link": foundGame.video_link,
+            "image": foundGame.image,"genre": foundGame.genre}
+            return jsonify(sendableGame), 200
         except:
-            return BadRequest(f"Sorry, we don't have the game: {id}!")
+            return BadRequest(f"Sorry, we don't have the game: {name}!")
     elif request.method == "DELETE":
         try:
-            del games[id - 1]
-            return jsonify(games), 204
+            foundGame = Game.query.filter_by(name=name).first()
+            db.session.delete(foundGame)
+            db.session.commit()
+            return jsonify(""), 204
         except:
-            raise BadRequest(f"Failed to delete game: {id}!")
+            raise BadRequest(f"Failed to delete game: {name}!")
